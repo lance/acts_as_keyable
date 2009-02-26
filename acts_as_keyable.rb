@@ -22,7 +22,6 @@ module ActiveRecord #:nodoc:
       module ClassMethods
         
         def acts_as_keyable(key_for)
-          print "HERE in aak"
           return if self.included_modules.include?( ActiveRecord::Acts::Keyable::ActMethods )
           class_eval do
             validates_presence_of key_for
@@ -63,7 +62,6 @@ module ActiveRecord #:nodoc:
         end
         
         def to_param
-          print "HERE in to_param"
           self.key
         end      
       end # ActMethods
