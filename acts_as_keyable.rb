@@ -30,7 +30,18 @@ module ActiveRecord #:nodoc:
             include ActiveRecord::Acts::Keyable::ActMethods    
           end
         end
+      end #ClassMethods
         
+      module ActMethods
+        ## instace injection
+        def set_key(key_for)
+          self.key = generate_key_for(key_for)
+        end
+        
+        def to_param
+          self.key
+        end      
+
         def generate_key_for(key_for)
           begin
             return nil unless self.send(key_for)
@@ -39,31 +50,22 @@ module ActiveRecord #:nodoc:
 
             suffix, i = '', 2
             while ( true )
-              if ( find( :first, :conditions => "key = '#{generated_key+suffix}'" ) ) 
+              if ( self.class.find( :first, :conditions => "key = '#{generated_key+suffix}'" ) ) 
                 suffix = "_#{i}"
               else
-                generated_key = key + suffix
+                generated_key = generated_key + suffix
                 break
               end
               i += 1
             end
             return generated_key
-          rescue NoMethodError
-            print "I don't know how to respond to #{field}"
+          rescue NoMethodError => boom
+            print boom.message + "\n"
+            print boom.backtrace.join("\n")
+            print "I don't know how to respond to #{key_for}"
           end
           nil
         end  
-      end # ClassMethods
-
-      module ActMethods
-        ## instace injection
-        def set_key(key_for)
-          self.key = ActiveRecord::Acts::Keyable.generate_key_for(key_for)
-        end
-        
-        def to_param
-          self.key
-        end      
       end # ActMethods
     end # Keyable
   end # Acts
