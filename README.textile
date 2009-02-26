@@ -1,0 +1,38 @@
+h1. Acts As Keyable
+
+This is a simple acts_as extension for Rails apps.  It makes use of some nice Rails 2.x features and RESTful routes
+in order to provide you with even prettier URLs.  By default Rails scaffolds generate URLS such as
+@http://yoursite.com/members/4@ or for nested routed @http://yoursite.com/members/4/plans@ which isn't really
+ideal if you want pretty URLs.  Acts as Keyable gives you something this: @http://yoursite.com/members/john/plans@.
+
+h2. Installation
+
+Copy @acts_as_keyable.rb@ into your @RAILS_ROOT/lib@ and add this to the models you want to have pretty URLs, e.g.
+
+<pre><code>
+  require 'acts_as_keyable'
+  class Member < ActiveRecord::Base
+    acts_as_keyable :username
+  end
+</pre></code>
+
+Any ActiveRecord class you make keyable must have a @key@ column of type @:string@.  You specify what field to
+use to generate the key with a parameter.  Another example:
+
+<pre><code>
+  require 'acts_as_keyable'
+  class Book < ActiveRecord::Base
+    acts_as_keyable :title
+  end
+</pre></code>
+
+Acts as Keyable will call @validates_presence_of@ and @validates_uniqueness_of@ for the parameter provided.
+The key is set when the object is created and not modified thereafter.  It may be modified manually, e.g.
+
+<pre><code>
+  Book.find(:first).key = Book.generate_key_for(:some_other_thing)
+</pre></code>
+
+Keys are shortened to just alphanumeric characters.  So a username of "john_doe" becomes a key of "johndoe".
+If there is already a key "johndoe" in the database, then a monotonically increasing number will be appended
+to the key, e.g. "johndoe_1" and "johndoe_2".
